@@ -1,0 +1,24 @@
+apply plugin: "java"
+
+final HOME = System.getProperty("os.name").matches("(?i)Windows.*") ?
+        System.getenv("USERPROFILE") : System.getProperty("user.home")
+final SMART_DASHBOARD_EXTENSIONS = new File(HOME, "SmartDashboard/extensions")
+final SMART_DASHBOARD_JAR = new File(HOME, "wpilib/tools/SmartDashboard.jar")
+
+repositories {
+    maven {
+        url "http://first.wpi.edu/FRC/roborio/maven/development"
+    }
+}
+
+dependencies {
+    compile "edu.wpi.first.wpilib:SmartDashboard:1.0.0-SNAPSHOT"
+}
+
+jar {
+    destinationDir SMART_DASHBOARD_EXTENSIONS
+}
+
+task runSmartDashboard(dependsOn: [jar]) << {
+    javaexec { main "-jar"; args SMART_DASHBOARD_JAR }
+}
