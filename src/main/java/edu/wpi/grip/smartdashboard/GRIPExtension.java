@@ -7,6 +7,7 @@ import edu.wpi.first.smartdashboard.properties.StringProperty;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
@@ -21,6 +22,10 @@ public class GRIPExtension extends StaticWidget {
 
     private final static Logger logger = Logger.getLogger(GRIPExtension.class.getName());
 
+    static {
+        Logger.getGlobal().addHandler(new StreamHandler(new FileOutputStream(FileDescriptor.err), new SimpleFormatter()));
+    }
+
     private final static int PORT = 1180;
     private final static byte[] MAGIC_NUMBERS = {0x01, 0x00, 0x00, 0x00};
     private final static int HW_COMPRESSION = -1;
@@ -30,6 +35,7 @@ public class GRIPExtension extends StaticWidget {
     public final StringProperty addressProperty = new StringProperty(this, "GRIP Address", "localhost");
 
     private final GRIPImage gripImage = new GRIPImage();
+    private final GRIPReportList gripReportList = new GRIPReportList();
 
     private boolean shutdownThread = false;
     private final Thread thread = new Thread(() -> {
@@ -71,7 +77,7 @@ public class GRIPExtension extends StaticWidget {
                         gripImage.setImage(ImageIO.read(new ByteArrayInputStream(imageBuffer, 0, imageSize)));
                     }
                 } catch (IOException e) {
-                    logger.log(Level.WARNING, "Error in capture thread", e);
+                    logger.warning(e.getMessage());
                     gripImage.setError(e.getMessage());
                 } finally {
                     Thread.sleep(1000); // Wait a second before trying again
@@ -86,12 +92,20 @@ public class GRIPExtension extends StaticWidget {
 
     @Override
     public void init() {
-        logger.addHandler(new StreamHandler(new FileOutputStream(FileDescriptor.err), new SimpleFormatter()));
+        JSplitPane splitPane = new JSplitPane();
+        splitPane.setContinuousLayout(true);
+        splitPane.setDividerSize(8);
+        splitPane.setResizeWeight(1.0);
+        splitPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        splitPane.add(gripImage, JSplitPane.LEFT);
+        splitPane.add(gripReportList, JSplitPane.RIGHT);
 
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        add(gripImage);
+        setLayout(new BorderLayout());
+        add(splitPane, BorderLayout.CENTER);
 
+        gripImage.setReportList(gripReportList);
         thread.start();
+        gripReportList.start();
     }
 
     /**
