@@ -106,12 +106,16 @@ public class GRIPImage extends JComponent {
 
         ITable table = report.table;
         g2d.setColor(report.color);
+        g2d.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         if (table.getKeys().containsAll(Arrays.asList("x1", "x2", "y1", "y2"))) {
             // If the subtable has four equal-length number arrays called x1, y1, x2, and y2, then draw a line for
             // each element in the arrays
-            double[] x1 = table.getNumberArray("x1"), x2 = table.getNumberArray("x2"),
-                    y1 = table.getNumberArray("y1"), y2 = table.getNumberArray("y2");
+            double[] x1 = table.getNumberArray("x1");
+            double[] x2 = table.getNumberArray("x2");
+            double[] y1 = table.getNumberArray("y1");
+            double[] y2 = table.getNumberArray("y2");
+
             if (x1.length == x2.length && x1.length == y1.length && x1.length == y2.length) {
                 for (int i = 0; i < x1.length; i++) {
                     g2d.drawLine((int) x1[i], (int) y1[i], (int) x2[i], (int) y2[i]);
@@ -119,10 +123,30 @@ public class GRIPImage extends JComponent {
             }
         } else if (table.getKeys().containsAll(Arrays.asList("x", "y", "size"))) {
             // If the subtable has three equal-length arrays called x, y, and size, draw a circle for each element
-            double[] x = table.getNumberArray("x"), y = table.getNumberArray("y"), size = table.getNumberArray("size");
+            double[] x = table.getNumberArray("x");
+            double[] y = table.getNumberArray("y");
+            double[] size = table.getNumberArray("size");
+
             if (x.length == y.length) {
                 for (int i = 0; i < x.length; i++) {
                     g2d.drawOval((int) (x[i] - size[i] / 2), (int) (y[i] - size[i] / 2), (int) size[i], (int) size[i]);
+                    g2d.drawLine((int) (x[i] - 8), (int) y[i], (int) (x[i] + 8), (int) y[i]);
+                    g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i], (int) (y[i] + 8));
+                }
+            }
+        } else if (table.getKeys().containsAll(Arrays.asList("centerX", "centerY", "width", "height"))) {
+            // If the subtable has x, y, width, and height, draw rectangles.  This really means GRIP is publishing
+            // contours, but it doesn't publish the full contour data.
+            double x[] = table.getNumberArray("centerX");
+            double y[] = table.getNumberArray("centerY");
+            double width[] = table.getNumberArray("width");
+            double height[] = table.getNumberArray("height");
+
+            if (x.length == y.length && x.length == width.length && x.length == height.length) {
+                for (int i = 0; i < x.length; i++) {
+                    g2d.drawRect((int) (x[i] - width[i] / 2), (int) (y[i] - height[i] / 2), (int) width[i], (int) height[i]);
+                    g2d.drawLine((int) (x[i] - 8), (int) y[i], (int) (x[i] + 8), (int) y[i]);
+                    g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i], (int) (y[i] + 8));
                 }
             }
         }
