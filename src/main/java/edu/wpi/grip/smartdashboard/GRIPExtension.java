@@ -71,7 +71,7 @@ public class GRIPExtension extends StaticWidget {
                         // then the raw bytes.
                         int imageSize = inputStream.readInt();
                         imageBuffer = growIfNecessary(imageBuffer, imageSize);
-                        inputStream.read(imageBuffer, 0, imageSize);
+                        inputStream.readFully(imageBuffer, 0, imageSize);
 
                         // Decode the image and redraw
                         gripImage.setImage(ImageIO.read(new ByteArrayInputStream(imageBuffer, 0, imageSize)));
