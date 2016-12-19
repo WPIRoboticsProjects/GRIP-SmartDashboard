@@ -1,24 +1,31 @@
-apply plugin: "java"
+plugins {
+  id 'java'
+  id 'edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin' version '1.5.1'
+}
 
-final HOME = System.getProperty("os.name").matches("(?i)Windows.*") ?
-        System.getenv("USERPROFILE") : System.getProperty("user.home")
-final SMART_DASHBOARD_EXTENSIONS = new File(HOME, "SmartDashboard/extensions")
-final SMART_DASHBOARD_JAR = new File(HOME, "wpilib/tools/SmartDashboard.jar")
+final HOME = System.getProperty("os.name").matches("(?i)Windows.*") ? System.getenv("USERPROFILE") : System.getProperty("user.home")
 
-repositories {
-    maven {
-        url "http://first.wpi.edu/FRC/roborio/maven/development"
+dependencies {
+    compile "edu.wpi.first.wpilib:SmartDashboard:+"
+}
+
+WPILibVersion {
+        generateVersion = false
+}
+
+// Ensure that the WPILibVersioningPlugin is setup by setting the release type, if releaseType wasn't
+// already specified on the command line
+if (!hasProperty('releaseType')) {
+    WPILibVersion {
+        releaseType = 'dev'
     }
 }
 
-dependencies {
-    compile "edu.wpi.first.wpilib:SmartDashboard:1.0.0-SNAPSHOT"
+task copyJars(type: Copy) {
+    from "build/libs/GRIP-SmartDashboard.jar"
+    into new File(HOME, "SmartDashboard/extensions")
 }
 
-jar {
-    destinationDir SMART_DASHBOARD_EXTENSIONS
-}
-
-task runSmartDashboard(dependsOn: [jar]) << {
-    javaexec { main "-jar"; args SMART_DASHBOARD_JAR }
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.2.1'
 }
