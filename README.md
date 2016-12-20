@@ -1,5 +1,7 @@
 SmartDashboard plugin for [GRIP](https://github.com/WPIRoboticsProjects/GRIP)
 
-To run:
+## Requirements
+- [JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
-    ./gradlew runSmartDashboard
+## Building
+Use `./gradlew jar` to build.  To copy into the SmartDashboard extensions directory use `./gradlew copy`.
