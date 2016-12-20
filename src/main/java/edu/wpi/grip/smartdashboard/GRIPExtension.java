@@ -64,7 +64,7 @@ public class GRIPExtension extends StaticWidget {
                         // don't get those four numbers, something's wrong.
                         inputStream.readFully(magic);
                         if (!Arrays.equals(magic, MAGIC_NUMBERS)) {
-                            throw new IOException("Invalid stream (wrong magic numbers)");
+                            throw new IOException("Invalid stream (wrong magic numbers: " + Arrays.toString(magic) + ")");
                         }
 
                         // Next, the server sends a 32-bit number indicating the number of bytes in this frame,
